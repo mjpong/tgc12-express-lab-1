@@ -1,5 +1,6 @@
 const express = require('express')
 const hbs = require('hbs')
+const wax = require('wax-on')
 
 // 1. setup express
 let app = express();
@@ -9,6 +10,10 @@ app.set('view engine', 'hbs')
 
 // 2b. setup static files
 app.use(express.static('public'))
+
+// 2c. setup wax-on (for template inheritance)
+wax.on(hbs.handlebars);
+wax.setLayoutPath('./views/layouts')
 
 // ROUTES HERE!
 app.get('/', function(req,res){
