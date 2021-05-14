@@ -1,0 +1,32 @@
+{{#extends 'base'}}
+
+{{#block "content"}}
+<form method="POST">
+    <div>
+        <label class="form-label">Weight</label>
+        <input class="form-control" type="text" name="weight">
+    </div>
+
+    <div>
+        <label class="form-label">Height</label>
+        <input class="form-control" type="text" name="height">
+    </div>
+
+    <div>
+        <label class="form-label">Units of Measurement</label>
+        <div class="form-check">
+            <input type="radio" name="unit" value="metric" checked>
+            <label>Metric</label>
+
+            <input type="radio" name="unit" value="imperial">
+            <label>Imperial</label>
+        </div>
+    </div>
+
+    <input type="submit" value="Calculate BMI" class="btn btn-primary"/>
+</form>
+
+
+{{/block}}
+
+{{/extends}}
