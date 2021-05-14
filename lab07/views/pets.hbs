@@ -1,0 +1,39 @@
+{{#extends 'base'}}
+
+{{#block "content"}}
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Tags</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{#each allPets}}
+        <tr>
+            <td>{{this.id}}</td>
+            <td>
+                <a href="/pet/{{this.id}}/update">{{this.name}}</a>
+            </td>
+            <td>{{this.category.name}}</td>
+            <td>
+                {{#each this.tags}}
+                <span class="badge badge-primary">{{this.name}}</span>
+                {{/each}}
+            </td>
+            <td>{{this.status}}</td>
+        </tr>
+        {{/each}}
+
+    </tbody>
+
+
+</table>
+
+{{/block}}
+
+{{/extends}}
