@@ -17,6 +17,16 @@ async function main() {
     
     // 2. set the view engine
     app.set('view engine', 'hbs')
+
+    // 2b. initialize handlebars-helpers
+    // const helpers = require('handlebars-helpers')({
+    //   'handlebars':hbs.handlebars
+    // })
+
+    const helpers = require('handlebars-helpers');
+    helpers({
+        'handlebars':hbs.handlebars
+    })
     
     // 3. where to find the public folder
     app.use(express.static('public'))
@@ -75,7 +85,7 @@ async function main() {
         db.collection('food').insertOne({
             foodName, calories, tags
         });
-        res.send("Food Added")
+        res.redirect('/food')
     })
 
     app.get('/food', async (req, res) => {
@@ -98,6 +108,45 @@ async function main() {
         res.render('edit_food',{
             foodRecord
         })
+    })
+
+    app.post('/food/:foodid/edit', async(req,res)=>{
+        let {foodName, calories, tags} = req.body;
+        let foodId = req.params.foodid;
+        //convert the tags
+        tags = tags || [];
+        tags = Array.isArray(tags) ? tags : [tags];
+
+        // update the document
+        let db = MongoUtil.getDB();
+        await db.collection('food').updateOne({
+            '_id':ObjectId(foodId)
+        }, {
+            '$set': {
+                foodName, calories, tags
+            }
+        })
+        res.redirect('/food')
+    })
+
+    // display delete a food item
+    app.get('/food/:foodid/delete', async(req,res)=>{
+        let db = MongoUtil.getDB();
+        let foodRecord = await db.collection('food').findOne({
+            "_id": ObjectId(req.params.foodid)
+        })
+
+        res.render('delete_food',{
+            foodRecord
+        })
+    })
+
+    app.post('/food/:foodid/delete', async(req,res)=>{
+        let db = MongoUtil.getDB();
+        await db.collection('food').deleteOne({
+            '_id': ObjectId(req.params.foodid)
+        })
+        res.redirect('/food')
     })
 
     // 8. start the server
