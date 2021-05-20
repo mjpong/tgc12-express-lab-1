@@ -1,6 +1,7 @@
 const express = require('express');
 const hbs = require('hbs');
 const wax = require('wax-on');
+const ObjectId = require('mongodb').ObjectId;
 //const dotenv = require ('dotenv');
 
 //transfer all the variables in .env to process.env so that we can refer to it later
@@ -44,21 +45,76 @@ async function main() {
     })
     
     app.post('/food/add', (req,res)=>{
-        let foodName = req.body.foodName;
-        let calories = req.body.calories;
+        // let foodName = req.body.foodName;
+        // let calories = req.body.calories;
         // test with -> res.send(req.body)
+
+        let {foodName, calories, tags} =req.body //if name is same as variable no need to "let"
+
+        // check if tags are undefined. If undefined, set it to be an empty array
+        tags = tags || [];
+        
+        // if tag is a single value, convert it to be an array consisting of the value as it's own element
+        tags = Array.isArray(tags) ? tags : [tags]
+
+        // assume the tags variable contains "snack"
+        // tags = Array.isArray(tags) ? tags : [tags]
+        //      => Array.isArray("snack") ? "snack" : ["snack"]
+        //      => false ? "snack" : ["snack"]
+        //      => ["snack"]
+        // tags => ["snack"]
+
+        // assume the tags variable contains ["unhealthy", "homecooked"]
+        // tags = Array.isArray(tags) ? tags : [tags]
+        //      => Array.isArray(["unhealthy", "homecooked"]) ? ["unhealthy", "homecooked"] : [["unhealthy", "homecooked"]]
+        //      => true ? ["unhealthy", "homecooked"] : [["unhealthy", "homecooked"]]
+        //      => ["unhealthy", "homecooked"] 
+        // tags = ["unhealthy", "homecooked"]
 
         let db = MongoUtil.getDB();
         db.collection('food').insertOne({
-            'foodName': foodName,
-            'calories':calories
+            foodName, calories, tags
         });
         res.send("Food Added")
     })
+
+    app.get('/food', async (req, res) => {
+        let db = MongoUtil.getDB();
+        // find all the food and convert the results to an array
+        let results = await db.collection('food').find().toArray();
+        res.render('food', {
+            'foodRecords': results
+        })
+    })
+
+    // display the form to edit a food item
+    app.get('/food/:foodid/edit', async (req, res) => {
+        let db = MongoUtil.getDB();
+        let foodId = req.params.foodid;
+        // findOne will always give you back one object
+        let foodRecord = await db.collection('food').findOne({
+            "_id": ObjectId(foodId)
+        })
+        res.render('edit_food',{
+            foodRecord
+        })
+    })
+
     // 8. start the server
     app.listen(3000, ()=>{
         console.log("Server has started")
     })
-    }
+
+    app.get('/food', async (req,res)=>{
+        let db = MongoUtil.getDB();
+        // find all the food and convert the results to an array
+        let results = await db.collection('food').find().toArray();
+        res.render('food',{
+            'foodRecords': results
+        })
+    })
     
-    main();
+
+}
+    
+main();
